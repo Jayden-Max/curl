@@ -7,7 +7,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	netUrl "net/url"
+	neturl "net/url"
 	"os"
 	"strings"
 	"time"
@@ -31,25 +31,26 @@ type CURL struct {
 	// --data
 	PostBytes        []byte               // binary data
 	PostString       string               // string data
-	PostFields       netUrl.Values        // k-v format
+	PostFields       neturl.Values        // k-v format
 	PostReader       io.Reader            // from reader
 	PostFieldReaders map[string]io.Reader // from map reader
-	PostFiles        netUrl.Values        // key 文件名；value 文件路径
+	PostFiles        neturl.Values        // key 文件名；value 文件路径
 
 	Timeout time.Duration      // ctx 超时时间
 	ctx     context.Context    // ctx
 	cancel  context.CancelFunc // cancel
 }
 
-func NewCurl(url string) *CURL {
+func NewCurl(method, url string) *CURL {
 	return &CURL{
+		Method:           method,
 		URL:              url,
 		Headers:          make(map[string]string),
 		Options:          make(map[string]bool),
 		PostBytes:        make([]byte, 0),
-		PostFields:       netUrl.Values{},
+		PostFields:       neturl.Values{},
 		PostFieldReaders: make(map[string]io.Reader),
-		PostFiles:        netUrl.Values{},
+		PostFiles:        neturl.Values{},
 	}
 }
 
@@ -75,6 +76,7 @@ func (c *CURL) SetDefaultHeaders() {
 		return
 	}
 	// 配置request default参数
+	c.Headers["Content-Type"] = "application/json"
 	c.Headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
 	c.Headers["Accept-Encoding"] = "gzip, deflate"
 	c.Headers["Accept-Language"] = "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3"
@@ -131,7 +133,7 @@ func (c *CURL) SetPostString(p string) {
 }
 
 // map[string][]string for data content
-func (c *CURL) SetPostFields(p netUrl.Values) {
+func (c *CURL) SetPostFields(p neturl.Values) {
 	if c.PostFields == nil {
 		return
 	}
@@ -155,7 +157,7 @@ func (c *CURL) SetPostFieldReaders(p map[string]io.Reader) {
 }
 
 // file data for content
-func (c *CURL) SetPostFiles(p netUrl.Values) {
+func (c *CURL) SetPostFiles(p neturl.Values) {
 	if c.PostFiles == nil {
 		return
 	}
@@ -190,12 +192,7 @@ func (c *CURL) Do(ctx context.Context) (resp *Response, err error) {
 
 	ch := make(chan struct{}, 1)
 	go func() {
-		client := http.Client{
-			Transport:     nil,
-			CheckRedirect: nil,
-			Jar:           nil,
-			Timeout:       0,
-		}
+		client := http.Client{}
 		httpResponse, err = client.Do(httpRequest)
 		ch <- struct{}{}
 	}()
@@ -232,7 +229,7 @@ func (c *CURL) CreateRequest() (request *http.Request, err error) {
 	}
 
 	if err != nil {
-		return nil, errors.Wrap(err, "create NewRequest failed.")
+		return nil, errors.Wrap(err, "create request failed.")
 	}
 
 	if c.Headers != nil {

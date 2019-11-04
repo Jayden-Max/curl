@@ -91,9 +91,8 @@ func rcCookie(resp *http.Response) string {
 }
 
 func rcReferer(url, locationUrl string) (*Response, error) {
-	curl := NewCurl(url)
+	curl := NewCurl(url, "GET")
 	curl.Referer = locationUrl
-	curl.Method = "GET"
 
 	resp, err := curl.Do(context.TODO())
 	if err != nil {
