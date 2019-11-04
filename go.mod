@@ -1,4 +1,4 @@
-module curl
+module github.com/Jayden-Max/curl
 
 go 1.13
 
