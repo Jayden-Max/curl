@@ -222,7 +222,8 @@ func (c *CURL) CreateRequest() (request *http.Request, err error) {
 		return nil, fmt.Errorf("method: [%+v] or URL: [%+v] is empty", c.Method, c.URL)
 	}
 
-	if c.PostString != "" || len(c.PostFields) > 0 || len(c.PostFieldReaders) > 0 || len(c.PostFiles) > 0 {
+	if c.PostString != "" || c.PostBytes != nil || len(c.PostFields) > 0 ||
+		len(c.PostFieldReaders) > 0 || len(c.PostFiles) > 0 {
 		request, err = c.createPostRequest()
 	} else {
 		request, err = http.NewRequest(c.Method, c.URL, nil)
