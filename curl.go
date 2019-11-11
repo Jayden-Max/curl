@@ -193,7 +193,7 @@ func (c *CURL) Do(ctx context.Context) (resp *Response, err error) {
 
 	ch := make(chan struct{}, 1)
 	go func() {
-		// 跳过tls验证
+		// 跳过 tls 验证
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
