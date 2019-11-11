@@ -3,6 +3,7 @@ package curl
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -192,7 +193,13 @@ func (c *CURL) Do(ctx context.Context) (resp *Response, err error) {
 
 	ch := make(chan struct{}, 1)
 	go func() {
-		client := http.Client{}
+		// 跳过tls验证
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client := http.Client{
+			Transport: tr,
+		}
 		httpResponse, err = client.Do(httpRequest)
 		ch <- struct{}{}
 	}()
