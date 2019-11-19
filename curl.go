@@ -99,9 +99,9 @@ func (c *CURL) SetContext(ctx context.Context) {
 	}
 }
 
-func (c *CURL) SetTimeout(sec int) {
+func (c *CURL) SetTimeout(sec time.Duration) {
 	c.SetContext(context.Background())
-	c.Timeout = time.Duration(sec) * time.Second
+	c.Timeout = sec
 }
 
 func (c *CURL) SetOption(key string, value bool) {
@@ -178,7 +178,7 @@ func (c *CURL) Do(ctx context.Context) (resp *Response, err error) {
 
 	if c.Timeout <= 0 || c.ctx == nil {
 		// default Timeout 5 sec
-		c.SetTimeout(5)
+		c.SetTimeout(5 * time.Second)
 	}
 
 	var httpRequest *http.Request
